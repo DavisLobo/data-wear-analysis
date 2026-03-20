@@ -36,15 +36,15 @@ id_atividades = {0: 'transient',
               24: 'rope_jumping' }
 
 lista_dados = [
-'/Wearables/PAMAP2_Dataset/Protocol/subject101.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject102.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject103.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject104.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject105.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject106.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject107.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject108.dat',
-'/Wearables/PAMAP2_Dataset/Protocol/subject109.dat'
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject101.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject102.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject103.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject104.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject105.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject106.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject107.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject108.dat',
+'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject109.dat'
 ]
 
 col_geral = ['timestamp', 'id_atividade', 'Frequência cardiaca (bpm)']
@@ -167,7 +167,7 @@ plt.show()
 
 # Valores MET baseados na literatura
 
-met_values = {
+valores_met = {
     1: 0.9,   # lying
     2: 1.0,   # sitting
     3: 1.2,   # standing
@@ -188,7 +188,7 @@ SAMPLE_RATE_HZ = 100
 SEC_POR_SAMPLE = 1 / SAMPLE_RATE_HZ
 
 def estimate_calorias(row, peso_kg= PESO_CORPORAL):
-    met = met_values.get(int(row['id_atividade']), 1.0)
+    met = valores_met.get(int(row['id_atividade']), 1.0)
     horas = SEC_POR_SAMPLE / 3600
     return met * peso_kg * horas     # kcal = MET × peso(kg) × tempo(horas)
 
@@ -205,9 +205,3 @@ resumo_calorias = dn.groupby('id_atividade')['calorias_kcal'].sum().reset_index(
 resumo_calorias.columns = ['ID Atividade', 'Total kcal']
 resumo_calorias['Atividade'] = resumo_calorias['ID Atividade'].map(id_atividades)
 print(resumo_calorias.sort_values('Total kcal', ascending=False))
-
-
-
-
-
-
