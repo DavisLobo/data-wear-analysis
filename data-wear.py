@@ -36,15 +36,15 @@ id_atividades = {0: 'transient',
               24: 'rope_jumping' }
 
 lista_dados = [
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject101.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject102.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject103.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject104.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject105.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject106.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject107.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject108.dat',
-'/home/davi/Documents/Projetos/Wearables/PAMAP2_Dataset/Protocol/subject109.dat'
+'/Wearables/PAMAP2_Dataset/Protocol/subject101.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject102.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject103.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject104.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject105.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject106.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject107.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject108.dat',
+'/Wearables/PAMAP2_Dataset/Protocol/subject109.dat'
 ]
 
 col_geral = ['timestamp', 'id_atividade', 'Frequência cardiaca (bpm)']
