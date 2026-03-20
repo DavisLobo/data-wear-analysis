@@ -88,7 +88,7 @@ $$\text{kcal} = \text{MET} \times \text{peso}_{kg} \times \text{tempo}_{horas}$$
 
 # Abra o notebook para execução interativa
 
-jupyter notebook wearables_analise.ipynb
+jupyter notebook wearables_dados.ipynb
 
 ---
 
