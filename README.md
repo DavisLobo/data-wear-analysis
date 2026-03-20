@@ -1,6 +1,6 @@
 # Análise de Dados de Wearables — PAMAP2
 
-Projeto acadêmico de introdução a Data Science com foco em classificação de atividades físicas a partir de dados de sensores (IMU). Desenvolvido como exercício prático com as principais bibliotecas de Python para ciência de dados.
+Projeto pessoal de introdução a Data Science com foco em classificação de atividades físicas a partir de dados de sensores (IMU). Desenvolvido como exercício prático com as principais bibliotecas de Python para ciência de dados.
 
 ---
 
