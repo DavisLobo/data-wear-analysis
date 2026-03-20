@@ -1,17 +1,18 @@
 import pandas as pd
 import numpy as np
-import sklearn as sklearn
 import seaborn as sns
 from matplotlib import pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
 
-## Wearables data analysis project - Classification
+### Wearables data analysis project - Classification
 ''' 
 Main goal of the project is to gain proficiency with common Data Science libraries.
 Project problem is of Classification type and is required data processing prior to analysis.
 We'll analyse the data to classify exercises and determine their instensity as well as estimating the calories burnt
 '''
 
-# Processamento dos dados e organizacao
+## Processamento dos dados e organizacao
 id_individuo = [1,2,3,4,5,6,7,8,9]
 
 id_atividades = {0: 'transient',
@@ -73,7 +74,6 @@ dados_completos= pd.DataFrame()
 for arq in lista_dados:
     procDados= pd.read_table(filepath_or_buffer=arq, header=None, sep='\s+')
     procDados.columns= colunas
-    procDados['id_atividade']= int(arq[-5])
     dados_completos= pd.concat([dados_completos, procDados], ignore_index=True)
 
 def LimpaDados(dados_completos):
@@ -96,30 +96,115 @@ print(dn.head(10))
 treino_Dn= dn.sample(frac=0.8, random_state=1)
 teste_Dn = dn.drop(treino_Dn.index)
 
-#Gráfico Frequência Cardiaca
+# Gráfico Frequência Cardiaca
 
 fig, ax = plt.subplots(figsize=(4,4))
-plt.title("Heart Rate")
+plt.title("FC (BPM)")
 ax = sns.boxplot(y=treino_Dn["Frequência cardiaca (bpm)"])
 plt.show()
 
-# Classificar caminhada/corrida/descanso
+## Classificar caminhada/corrida/descanso
+
+mapa_atividades = {1: 'descanso', 2: 'descanso', 3: 'descanso',
+                   4: 'caminhada', 5: 'corrida'}
+
+df_filtrado = dn[dn['id_atividade'].isin(mapa_atividades.keys())].copy()
+df_filtrado['rotulo'] = df_filtrado['id_atividade'].map(mapa_atividades)
+
+# Magnitude do acelerômetro — invariante à rotação do sensor
+
+for prefixo in ['m', 'p', 'c']:
+    df_filtrado[f'{prefixo}Magnitude'] = np.sqrt(
+        df_filtrado[f'{prefixo}Acel 16g (ms) 1']**2 +
+        df_filtrado[f'{prefixo}Acel 16g (ms) 2']**2 +
+        df_filtrado[f'{prefixo}Acel 16g (ms) 3']**2
+    )
+
+caracteristicas = ['Frequência cardiaca (bpm)',
+                   'mMagnitude', 'pMagnitude', 'cMagnitude']
+
+X = df_filtrado[caracteristicas]
+y = df_filtrado['rotulo']
+
+X_treino = X.loc[treino_Dn.index.intersection(X.index)]
+y_treino = y.loc[X_treino.index]
+X_teste  = X.loc[teste_Dn.index.intersection(X.index)]
+y_teste  = y.loc[X_teste.index]
+
+classificador = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+classificador.fit(X_treino, y_treino)
+
+print(classification_report(y_teste, classificador.predict(X_teste)))
 
 
 
 
+## Detectar intensidade do exercício
+
+def classificar_intensidade(bpm):
+    if bpm < 100:
+        return 'baixa'
+    elif bpm < 140:
+        return 'moderada'
+    else:
+        return 'alta'
+
+dn['intensidade'] = dn['Frequência cardiaca (bpm)'].apply(classificar_intensidade)
+
+fig, eixo = plt.subplots(figsize=(12, 5))
+contagem_intensidade = (dn.groupby(['id_atividade', 'intensidade'])
+                          .size()
+                          .unstack(fill_value=0))
+contagem_intensidade.plot(kind='bar', stacked=True, ax=eixo, colormap='RdYlGn_r')
+eixo.set_xlabel('ID da Atividade')
+eixo.set_ylabel('Número de amostras')
+eixo.set_title('Distribuição de Intensidade por Atividade')
+plt.tight_layout()
+plt.show()
 
 
-# Detectar intensidade do exercício
+## Estimar gasto calórico
 
+# Valores MET baseados na literatura
 
+met_values = {
+    1: 0.9,   # lying
+    2: 1.0,   # sitting
+    3: 1.2,   # standing
+    4: 3.5,   # walking
+    5: 8.0,   # running
+    6: 6.0,   # cycling
+    7: 4.5,   # Nordic walking
+    12: 4.0,  # ascending stairs
+    13: 3.0,  # descending stairs
+    16: 3.5,  # vacuum cleaning
+    17: 2.3,  # ironing
+    20: 7.0,  # playing soccer
+    24: 10.0, # rope jumping
+}
 
+PESO_CORPORAL = 70
+SAMPLE_RATE_HZ = 100       
+SEC_POR_SAMPLE = 1 / SAMPLE_RATE_HZ
 
+def estimate_calorias(row, peso_kg= PESO_CORPORAL):
+    met = met_values.get(int(row['id_atividade']), 1.0)
+    horas = SEC_POR_SAMPLE / 3600
+    return met * peso_kg * horas     # kcal = MET × peso(kg) × tempo(horas)
 
+dn['a'] = dn.apply(estimate_calorias, axis=1)
 
-# Estimar gasto calórico
+# Calorias por atividade
 
+dn['id_atividade'] = dn['id_atividade'].fillna(0).astype(int)
+dn['met'] = dn['id_atividade'].map(valores_met).fillna(1.0)
+dn['calorias_kcal'] = dn['met'] * PESO_CORPORAL * (SEC_POR_SAMPLE / 3600)
+dn.drop(columns=['met'], inplace=True)
 
+resumo_calorias = dn.groupby('id_atividade')['calorias_kcal'].sum().reset_index()
+resumo_calorias.columns = ['ID Atividade', 'Total kcal']
+resumo_calorias['Atividade'] = resumo_calorias['ID Atividade'].map(id_atividades)
+print(resumo_calorias.sort_values('Total kcal', ascending=False))
 
 
 
